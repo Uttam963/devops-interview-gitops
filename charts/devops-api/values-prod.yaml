@@ -1,0 +1,13 @@
+replicaCount: 4
+
+application:
+  environment: production
+  version: v2-prod
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi

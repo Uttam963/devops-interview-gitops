@@ -1,0 +1,38 @@
+replicaCount: 2
+
+image:
+  repository: devops-interview-api
+  tag: v2
+  pullPolicy: IfNotPresent
+
+application:
+  name: devops-interview-api
+  environment: default
+  version: v2
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+probes:
+  readiness:
+    path: /ready
+    initialDelaySeconds: 3
+    periodSeconds: 5
+  liveness:
+    path: /health
+    initialDelaySeconds: 10
+    periodSeconds: 10
+
+securityContext:
+  runAsUser: 10001
+  runAsGroup: 10001
