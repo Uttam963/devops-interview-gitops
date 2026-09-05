@@ -1,8 +1,8 @@
-replicaCount: 3
+replicaCount: 2
 
 application:
   environment: development
-  version: v3-gitops
+  version: v2-dev
 
 resources:
   requests:
