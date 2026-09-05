@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: interview-project
+  namespace: argocd
+spec:
+  description: DevOps interview project
+
+  sourceRepos:
+    - https://github.com/Uttam963/devops-interview-gitops.git
+
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: gitops-dev
+
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
