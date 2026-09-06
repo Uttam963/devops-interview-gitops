@@ -1,5 +1,10 @@
 replicaCount: 2
 
+image:
+  repository: ghcr.io/uttam963/devops-interview-api
+  pullPolicy: IfNotPresent
+  tag: latest
+
 application:
   environment: development
   version: v2-dev
