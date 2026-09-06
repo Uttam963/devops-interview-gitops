@@ -3,7 +3,7 @@ replicaCount: 2
 image:
   repository: ghcr.io/uttam963/devops-interview-api
   pullPolicy: IfNotPresent
-  tag: "63b35fb9b9d5032c26ef8e1309ea329937565c8a"
+  tag: "6e1968a4faeef48672d370840231c08dc268bedb"
 
 application:
   environment: development
