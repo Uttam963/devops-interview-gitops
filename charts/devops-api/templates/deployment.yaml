@@ -4,6 +4,9 @@ metadata:
   name: {{ include "devops-api.fullname" . }}
   labels:
     {{- include "devops-api.labels" . | nindent 4 }}
+    {{- if .Values.workloadIdentity.enabled }}
+        azure.workload.identity/use: "true"
+    {{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
 
@@ -30,6 +33,7 @@ spec:
         runAsGroup: {{ .Values.securityContext.runAsGroup }}
         seccompProfile:
           type: RuntimeDefault
+        serviceAccountName: {{ .Values.serviceAccount.name }}
 
       containers:
         - name: devops-api

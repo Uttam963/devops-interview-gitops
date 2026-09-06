@@ -11,3 +11,11 @@ resources:
   limits:
     cpu: 250m
     memory: 128Mi
+
+serviceAccount:
+  create: true
+  name: devops-api
+
+workloadIdentity:
+  enabled: false
+  clientId: ""

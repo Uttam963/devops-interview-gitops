@@ -36,3 +36,12 @@ probes:
 securityContext:
   runAsUser: 10001
   runAsGroup: 10001
+
+serviceAccount:
+  create: true
+  name: devops-api
+  annotations: {}
+
+workloadIdentity:
+  enabled: false
+  clientId: ""

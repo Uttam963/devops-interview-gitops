@@ -1,0 +1,118 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: release-validation-
+  namespace: argo
+spec:
+  entrypoint: release-dag
+  serviceAccountName: workflow-runner
+
+  arguments:
+    parameters:
+      - name: release-version
+        value: v2-dev
+
+  podGC:
+    strategy: OnWorkflowCompletion
+
+  ttlStrategy:
+    secondsAfterCompletion: 600
+
+  templates:
+    - name: release-dag
+      dag:
+        tasks:
+          - name: validate-configuration
+            template: validate
+            arguments:
+              parameters:
+                - name: version
+                  value: "{{workflow.parameters.release-version}}"
+
+          - name: database-migration
+            dependencies:
+              - validate-configuration
+            template: migrate
+            arguments:
+              parameters:
+                - name: version
+                  value: "{{workflow.parameters.release-version}}"
+
+          - name: application-smoke-test
+            dependencies:
+              - validate-configuration
+            template: smoke-test
+
+          - name: release-validation
+            dependencies:
+              - database-migration
+              - application-smoke-test
+            template: complete
+            arguments:
+              parameters:
+                - name: version
+                  value: "{{workflow.parameters.release-version}}"
+
+    - name: validate
+      inputs:
+        parameters:
+          - name: version
+      container:
+        image: alpine:3.22
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            set -eu
+            test -n "{{inputs.parameters.version}}"
+            echo "Configuration validated for {{inputs.parameters.version}}"
+
+    - name: migrate
+      inputs:
+        parameters:
+          - name: version
+      container:
+        image: alpine:3.22
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            set -eu
+            echo "Starting database migration for {{inputs.parameters.version}}"
+            sleep 5
+            echo "Database migration completed"
+
+    - name: smoke-test
+      retryStrategy:
+        limit: "2"
+        retryPolicy: OnFailure
+        backoff:
+          duration: 5s
+          factor: 2
+          maxDuration: 20s
+      container:
+        image: curlimages/curl:8.16.0
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            curl --fail --silent --show-error \
+              http://devops-api-dev-devops-api.gitops-dev.svc.cluster.local/health
+            echo
+            echo "Application smoke test passed"
+
+    - name: complete
+      inputs:
+        parameters:
+          - name: version
+      container:
+        image: alpine:3.22
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            echo "Release {{inputs.parameters.version}} passed all validation"
